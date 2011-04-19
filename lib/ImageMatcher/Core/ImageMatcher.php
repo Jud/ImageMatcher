@@ -60,7 +60,7 @@ class ImageMatcher {
     $images = array();
     foreach($this->urls as $url) {
       $name = '\ImageMatcher\Parsers\\' . $parser;
-      $imgs = ImageFactory::imagesFromLocationArray($name::parse($url));
+      $imgs = (@class_exists($name)) ? ImageFactory::imagesFromLocationArray($name::parse($url)) : array();
       foreach($imgs as $img) {
         $images[] = $img;
       }
@@ -75,7 +75,8 @@ class ImageMatcher {
     $matches = new MatchCollection;
     foreach($comparators as $comparator) {
       $name = '\ImageMatcher\Comparators\\' . $comparator;
-      $matches->appendCollection($name::compare($images));
+      $collection = (@class_exists($name)) ? $name::compare($images) : new MatchCollection;
+      $matches->appendCollection($collection);
     }
     
     $matches = $this->runFilters('after_filters', $filters, $matches);
@@ -101,13 +102,15 @@ class ImageMatcher {
           // dynamically setup our filter
           $f = '\ImageMatcher\Filters\\' . $filter;
           
-          // all of the filters impliment a static `filter` method that returns
-          // false if the item should be deleted.
-          if(!$f::filter($value, $options)) {
-            if(is_array($collection)) { 
-              unset($collection[$k]);
-            } else if(is_object($collection)) {
-              $collection->remove($value);
+          if(@class_exists($f)) {
+            // all of the filters impliment a static `filter` method that returns
+            // false if the item should be deleted.
+            if(!$f::filter($value, $options)) {
+              if(is_array($collection)) { 
+                unset($collection[$k]);
+              } else if(is_object($collection)) {
+                $collection->remove($value);
+              }
             }
           }
         }
