@@ -35,11 +35,17 @@ class html {
   private static function normalizeURL($page, $url) {
     $urlparts = parse_url($page);
     if(strpos($url, '/') === 0) {
-      return $urlparts['scheme'] . ':' . $urlparts['host'] . $url;
+      return $urlparts['scheme'] . '://' . $urlparts['host'] . $url;
     } else {
-      $imgpath = explode('/', $urlparts['path']);
-      $imgpath[(count($imgpath)-1)] = $url;
-      return $urlparts['scheme'] . '://' . $urlparts['host'] . implode('/', $imgpath);
+      $abs = strtolower(substr($url, 0, 7)) == 'http://';
+      if($abs != 'http://' && $abs != 'https:/') {
+        $imgpath = explode('/', $urlparts['path']);
+        $imgpath[(count($imgpath)-1)] = $url;
+        return $urlparts['scheme'] . '://' . $urlparts['host'] . implode('/', $imgpath);
+      } else {
+        return $url;
+      }
     }
   }
 }
+?>

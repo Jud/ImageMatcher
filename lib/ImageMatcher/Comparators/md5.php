@@ -7,9 +7,18 @@
  
 namespace ImageMatcher\Comparators;
 
-use ImageMatcher\Common\Image;
+use ImageMatcher\Common\Image as Image;
+use ImageMatcher\Common\MatchCollection as MatchCollection;
+use ImageMatcher\Common\MatchPair as MatchPair;
+
 class md5 {
   
+  /**
+   * The static `compare` method is implimented by all of the Comparators.
+   * This method takes an array of images and performs the needed calculations
+   * on them and outputs a MatchCollection object, which will then be appended
+   * to the global collection.
+   */
   public static function compare($images) {
     // we operate on arrays of image objects
     if(!is_array($images)) {
@@ -17,36 +26,24 @@ class md5 {
     }
     
     $hashes = array();
-    $matches = array();
+    $matches = new MatchCollection;
     foreach($images as $image) {
-      if($image instanceof \ImageMatcher\Common\Image) {
+      if($image instanceof Image) {
         $image->hashes['md5'] = !$image->hashes['md5'] ? md5($image->data['raw']) : $image->hashes['md5'];
         if(!empty($hashes[$image->hashes['md5']])) {
-          if(empty($matches[$image->hashes['md5']])) {
-            $matches[$image->hashes['md5']][] = $hashes[$image->hashes['md5']];
-          }
-          $matches[$image->hashes['md5']][] = $image;
+          $matches->addPair(new MatchPair(array(
+                                                $hashes[$image->hashes['md5']],
+                                                $image
+                                          ), 'md5', 1));
         } else {
           $hashes[$image->hashes['md5']] = $image;
         }
       }
     }
-        
-    // This way we can return an array with keys like 0, 1, 2 - instead of
-    // the md5 signature of the image as the key.
-    $m = array();
-    foreach($matches as $match) {
-      $m[] = $match;
-    }
     
-    return $m;
+    return $matches;
+    
   }
 }
-
-
-
-/* TODO:
- * - Matching Pair object, which would give access to some "matching_score" type system
- * - Impliment another comparator
- * - Dominate?
- */
+ 
+?>
