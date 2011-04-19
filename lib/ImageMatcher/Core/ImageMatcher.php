@@ -7,6 +7,8 @@
 namespace ImageMatcher\Core;
 use ImageMatcher\Common\ImageFactory;
 use ImageMatcher\Common\MatchCollection;
+use ImageMatcher\Common\ImageCollection;
+
 class ImageMatcher {
   
   public $urls;
@@ -57,12 +59,12 @@ class ImageMatcher {
      * drop in another module that takes into account JS images, using
      * something like PHPJS or P2P5.
      */
-    $images = array();
+    $images = new ImageCollection;
     foreach($this->urls as $url) {
       $name = '\ImageMatcher\Parsers\\' . $parser;
       $imgs = (@class_exists($name)) ? ImageFactory::imagesFromLocationArray($name::parse($url)) : array();
       foreach($imgs as $img) {
-        $images[] = $img;
+        $images->add($img, $url);
       }
     }
     
@@ -97,17 +99,18 @@ class ImageMatcher {
     // empty and it has an array of filters to perform.
     if(!empty($filters[$type]) && is_array($filters[$type])) {
       foreach($filters[$type] as $filter => $options) {
-        foreach($collection as $k => $value) {
-          
+        $arr = $collection->toArray();
+        foreach($arr as $k => $value) {
           // dynamically setup our filter
           $f = '\ImageMatcher\Filters\\' . $filter;
           
           if(@class_exists($f)) {
             // all of the filters impliment a static `filter` method that returns
             // false if the item should be deleted.
-            if(!$f::filter($value, $options)) {
-              if(is_array($collection)) { 
-                unset($collection[$k]);
+            $filterval = is_array($value) ? $value[0] : $value;
+            if(!$f::filter($filterval, $options)) {
+              if($collection instanceof ImageCollection) {
+                $collection->remove($value[0], $value[1]);
               } else if(is_object($collection)) {
                 $collection->remove($value);
               }
