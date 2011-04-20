@@ -54,8 +54,7 @@ class Image {
     
     if($raw = @fread($handle, filesize($stream['uri']))) {
       $this->data['raw'] = base64_encode($raw);
-      $this->hashes['md5'] = md5($this->data['raw']);
-      
+          
       if($info = getimagesize($stream['uri'])) {
         @$this->data['mime'] = $info['mime'];
         @$this->data['type'] = $info[2];
@@ -69,12 +68,6 @@ class Image {
     }
     
     return $this;
-  }
-  
-  public function genmd5() {
-    if(empty($this->hashes['md5'])) {
-      $this->hashes['md5'] = md5($this->data['raw']);
-    }
   }
 }
 ?>

@@ -20,41 +20,29 @@ class md5 {
    * to the global collection.
    */
   public static function compare($images) {
-  
+    // we operate on arrays of image objects
+    if(!is_array($images)) {
+      return false;
+    }
+    
     $hashes = array();
     $matches = new MatchCollection;
-        
-    foreach($images->images as $k => $group) {
-      foreach($group as $image) {
-        if($image instanceof Image) {
-          $image->hashes['md5'] = !$image->hashes['md5'] ? md5($image->data['raw']) : $image->hashes['md5'];
-          if($img = self::in_array($image, $images->images, $k))
-          {            
-            $matches->addPair(new MatchPair(array(
-                                                  $img,
-                                                  $image
-                                            ), 'md5', 1));
-          }
+    foreach($images as $image) {
+      if($image instanceof Image) {
+        $image->hashes['md5'] = !$image->hashes['md5'] ? md5($image->data['raw']) : $image->hashes['md5'];
+        if(!empty($hashes[$image->hashes['md5']])) {
+          $matches->addPair(new MatchPair(array(
+                                                $hashes[$image->hashes['md5']],
+                                                $image
+                                          ), 'md5', 1));
+        } else {
+          $hashes[$image->hashes['md5']] = $image;
         }
       }
     }
     
     return $matches;
     
-  }
-  
-  private static function in_array($image, $array, $key) {
-    foreach($array as $k => $v) {
-      if($k != $key) {
-        foreach($v as $img) {
-          if(@$img->hashes['md5'] == $image->hashes['md5']) {
-            return $img;
-          }
-        }
-      }
-    }
-    
-    return false;
   }
 }
  
