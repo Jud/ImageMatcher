@@ -7,7 +7,7 @@
 namespace ImageMatcher\Common;
 
 class Image {
-  public $hashes, $location, $data;
+  public $hashes, $location, $page, $data;
   
   public function __construct($location = '') {
     if($location) {
@@ -23,7 +23,7 @@ class Image {
    * I would encourage you to use an ImageFactory, which utilizes CURL's multi
    * methods to speed up image retrieval.
    */
-  public function loadImageAt($location) {
+  public function loadImageAt($location, $pagehash) {
     // We are creating a temporary file and using CURL to save the image
     // in the temporary file so that GD can store metadata such as
     // mime type, height, width, etc for further analysis.
@@ -37,6 +37,7 @@ class Image {
       fseek($tmp, 0);
 
       $this->location = $location;
+      $this->page = $pagehash;
       
       $this->setPropertiesFromFileHandle($tmp);
     }
@@ -54,7 +55,8 @@ class Image {
     
     if($raw = @fread($handle, filesize($stream['uri']))) {
       $this->data['raw'] = base64_encode($raw);
-          
+      $this->hashes['md5'] = md5($this->data['raw']);
+      
       if($info = getimagesize($stream['uri'])) {
         @$this->data['mime'] = $info['mime'];
         @$this->data['type'] = $info[2];

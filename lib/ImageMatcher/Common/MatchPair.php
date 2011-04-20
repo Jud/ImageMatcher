@@ -9,7 +9,7 @@ namespace ImageMatcher\Common;
 use ImageMatcher\Common\Image as Image;
 class MatchPair {
   
-  public $id, $members, $matches;
+  public $id, $pages, $members, $matches;
   
   /**
    * Create a new matchpair object. It is important that the array of $ids
@@ -24,16 +24,25 @@ class MatchPair {
         if($img instanceof Image) {
           $this->members[] = $img;
           $ids[] = (!empty($img->hashes['md5'])) ? $img->hashes['md5'] : md5($img->data['raw']);
+          $pages[] = $img->page;
         }
       }
       
       asort($ids);
+      asort($pages);
+      
       $output = '';
       foreach($ids as $id) {
         $output .= $id;
       }
       
+      $pagehash = '';
+      foreach($pages as $page) {
+        $pagehash .= $page;
+      }
+      
       $this->id = md5($output);
+      $this->pages = md5($pagehash);
       $this->matches[$type] = $score;
     }
   }

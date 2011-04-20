@@ -15,7 +15,7 @@ class ImageFactory {
    * once all of the multi instances have completed, it sets up an array of
    * Image objects and outputs them.
    */
-  public static function ImagesFromLocationArray($locations) {
+  public static function ImagesFromLocationArray($locations, $pagehash) {
     $images = array();
     $mh = curl_multi_init();
     foreach($locations as $location) {
@@ -28,7 +28,7 @@ class ImageFactory {
       
       //add the two handles
       curl_multi_add_handle($mh,$ch);
-      $images[] = array('handle' => $ch, 'location' => $location);
+      $images[] = array('handle' => $ch, 'location' => $location, 'page' => $pagehash);
     }
     
     $active = null;
@@ -58,6 +58,7 @@ class ImageFactory {
         // now create our image
         $img = new \ImageMatcher\Common\Image;
         $img->location = $image['location'];
+        $img->page = $image['page'];
         $img->setPropertiesFromFileHandle($tmp);
         
         $output[] = $img;

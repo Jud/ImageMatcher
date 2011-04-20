@@ -60,7 +60,7 @@ class ImageMatcher {
     $images = array();
     foreach($this->urls as $url) {
       $name = '\ImageMatcher\Parsers\\' . $parser;
-      $imgs = (@class_exists($name)) ? ImageFactory::imagesFromLocationArray($name::parse($url)) : array();
+      $imgs = (@class_exists($name)) ? ImageFactory::imagesFromLocationArray($name::parse($url), md5($url)) : array();
       foreach($imgs as $img) {
         $images[] = $img;
       }
@@ -97,7 +97,9 @@ class ImageMatcher {
     // empty and it has an array of filters to perform.
     if(!empty($filters[$type]) && is_array($filters[$type])) {
       foreach($filters[$type] as $filter => $options) {
-        foreach($collection as $k => $value) {
+        // take into account that we may be iterating over a MatchCollection obj
+        $arr = (is_object($collection) && method_exists($collection, 'toArray')) ? $collection->toArray() : $collection;
+        foreach($arr as $k => $value) {
           
           // dynamically setup our filter
           $f = '\ImageMatcher\Filters\\' . $filter;

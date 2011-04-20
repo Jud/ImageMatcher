@@ -30,7 +30,7 @@ class md5 {
     foreach($images as $image) {
       if($image instanceof Image) {
         $image->hashes['md5'] = !$image->hashes['md5'] ? md5($image->data['raw']) : $image->hashes['md5'];
-        if(!empty($hashes[$image->hashes['md5']])) {
+        if(!empty($hashes[$image->hashes['md5']]) && ($hashes[$image->hashes['md5']]->page != $image->page)) {
           $matches->addPair(new MatchPair(array(
                                                 $hashes[$image->hashes['md5']],
                                                 $image

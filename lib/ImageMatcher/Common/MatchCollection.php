@@ -50,7 +50,7 @@ class MatchCollection {
    */
   public function pairExists($pair) {
     foreach($this->collection as $member) {
-      if($member->id == $pair->id) {
+      if(($member->id == $pair->id) && ($member->pages == $pair->pages)) {
         return $member;
       }
     }

@@ -100,8 +100,8 @@
       .input .submit { float: right; background: #333; color: #fff; padding: 5px; cursor: pointer; }
       .loadiv { margin: 10px auto; text-align: center;}
       .results { margin: 15px 0 0 0; width: 600px; text-align: center; }
-      .results .imagematch { display: block; }
-      .results>img { text-align: center; display: inline-block; margin: 0 10px 10px; }
+      .results .imagematch { display: block; margin: 0 0  10px;}
+      .results .imagematch img { text-align: center; display: inline-block; }
     </style>
   </head>
   <body>
